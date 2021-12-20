@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.jxau.dao.RuleFilterDao">
+
+    <resultMap id="ruleTreeMap" type="cn.edu.jxau.model.po.RuleTree">
+        <id column="id" property="id"/>
+        <result column="tree_id" property="treeId"/>
+        <result column="tree_root_id" property="treeRootId"/>
+        <result column="tree_name" property="treeName"/>
+        <result column="tree_desc" property="treeDesc"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+
+
+    <select id="queryRuleTree" parameterType="java.lang.Long" resultMap="ruleTreeMap">
+        SELECT *
+        FROM rule_tree
+        WHERE tree_id = #{treeId}
+    </select>
+</mapper>
