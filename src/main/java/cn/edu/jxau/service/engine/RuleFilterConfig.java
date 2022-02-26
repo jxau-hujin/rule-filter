@@ -1,10 +1,10 @@
 package cn.edu.jxau.service.engine;
 
 import cn.edu.jxau.service.filter.IRuleFilterExec;
-import cn.edu.jxau.demo.filter.AgeRuleFilterExec;
-import cn.edu.jxau.demo.filter.DefaultersRuleFilterExec;
-import cn.edu.jxau.demo.filter.OverdueRecordsRuleFilterExec;
-import cn.edu.jxau.demo.filter.WorkStatusRuleFilterExec;
+import cn.edu.jxau.example.filter.AgeRuleFilterExec;
+import cn.edu.jxau.example.filter.DefaultersRuleFilterExec;
+import cn.edu.jxau.example.filter.OverdueRecordsRuleFilterExec;
+import cn.edu.jxau.example.filter.WorkStatusRuleFilterExec;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;

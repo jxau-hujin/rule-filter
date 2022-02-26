@@ -1,4 +1,4 @@
-package cn.edu.jxau.demo.service;
+package cn.edu.jxau.example.service;
 
 import org.springframework.stereotype.Service;
 

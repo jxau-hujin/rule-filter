@@ -1,9 +1,9 @@
-package cn.edu.jxau.demo.filter;
+package cn.edu.jxau.example.filter;
 
-import cn.edu.jxau.demo.service.UserInfoService;
+import cn.edu.jxau.example.service.UserInfoService;
 import cn.edu.jxau.model.req.RuleFilterReq;
 import cn.edu.jxau.service.filter.AbstractRuleFilterExec;
-import cn.edu.jxau.demo.model.UserInfo;
+import cn.edu.jxau.example.model.UserInfo;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;

@@ -1,7 +1,7 @@
-package cn.edu.jxau.demo.filter;
+package cn.edu.jxau.example.filter;
 
-import cn.edu.jxau.demo.model.OverdueRecords;
-import cn.edu.jxau.demo.service.OverdueRecordsService;
+import cn.edu.jxau.example.model.OverdueRecords;
+import cn.edu.jxau.example.service.OverdueRecordsService;
 import cn.edu.jxau.model.req.RuleFilterReq;
 import cn.edu.jxau.service.filter.AbstractRuleFilterExec;
 import org.springframework.stereotype.Component;

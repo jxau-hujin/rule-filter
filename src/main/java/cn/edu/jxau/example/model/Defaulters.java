@@ -1,4 +1,4 @@
-package cn.edu.jxau.demo.model;
+package cn.edu.jxau.example.model;
 
 import java.time.LocalDate;
 

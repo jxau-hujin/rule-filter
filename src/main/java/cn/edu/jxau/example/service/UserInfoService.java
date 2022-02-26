@@ -1,6 +1,6 @@
-package cn.edu.jxau.demo.service;
+package cn.edu.jxau.example.service;
 
-import cn.edu.jxau.demo.model.UserInfo;
+import cn.edu.jxau.example.model.UserInfo;
 import org.springframework.stereotype.Service;
 
 /**

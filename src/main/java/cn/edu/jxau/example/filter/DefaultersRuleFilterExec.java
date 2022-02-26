@@ -1,9 +1,8 @@
-package cn.edu.jxau.demo.filter;
+package cn.edu.jxau.example.filter;
 
-import cn.edu.jxau.demo.service.UserInfoService;
+import cn.edu.jxau.example.service.DefaultersService;
 import cn.edu.jxau.model.req.RuleFilterReq;
 import cn.edu.jxau.service.filter.AbstractRuleFilterExec;
-import cn.edu.jxau.demo.model.UserInfo;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -15,7 +14,7 @@ import java.util.Map;
  * @date: 2022/2/26
  */
 @Component
-public class WorkStatusRuleFilterExec extends AbstractRuleFilterExec {
+public class DefaultersRuleFilterExec extends AbstractRuleFilterExec {
 
     private static final String KEYWORD = "userId";
 
@@ -24,7 +23,7 @@ public class WorkStatusRuleFilterExec extends AbstractRuleFilterExec {
     private static Integer REJECT = -1;
 
     @Resource
-    private UserInfoService userInfoService;
+    private DefaultersService defaultersService;
 
     @Override
     public Integer matterValue(RuleFilterReq req) {
@@ -34,12 +33,10 @@ public class WorkStatusRuleFilterExec extends AbstractRuleFilterExec {
             return Integer.MAX_VALUE;
         }
         String userId = argMap.get(KEYWORD);
-        UserInfo userInfo = userInfoService.queryByUserId(userId);
 
-        if(userInfo.getWorkStatus() == 0 || userInfo.getWorkStatus() == 1) {
+        if(defaultersService.isDefaulters(userId)) {
             return REJECT;
         }
         return ACCEPT;
     }
-
 }
