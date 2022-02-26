@@ -1,7 +1,10 @@
 package cn.edu.jxau.service.engine;
 
 import cn.edu.jxau.service.filter.IRuleFilterExec;
-import cn.edu.jxau.service.filter.impl.AgeRuleFilterExec;
+import cn.edu.jxau.demo.filter.AgeRuleFilterExec;
+import cn.edu.jxau.demo.filter.DefaultersRuleFilterExec;
+import cn.edu.jxau.demo.filter.OverdueRecordsRuleFilterExec;
+import cn.edu.jxau.demo.filter.WorkStatusRuleFilterExec;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -20,8 +23,20 @@ public class RuleFilterConfig {
     @Resource
     private AgeRuleFilterExec ageRuleFilterExec;
 
+    @Resource
+    private DefaultersRuleFilterExec defaultersRuleFilterExec;
+
+    @Resource
+    private OverdueRecordsRuleFilterExec overdueRecordsRuleFilterExec;
+
+    @Resource
+    private WorkStatusRuleFilterExec workStatusRuleFilterExec;
+
     @PostConstruct
     public void init() {
-        ruleFilterExecMap.put("age", ageRuleFilterExec);
+        ruleFilterExecMap.put("ageRule", ageRuleFilterExec);
+        ruleFilterExecMap.put("defaultersRule", defaultersRuleFilterExec);
+        ruleFilterExecMap.put("overdueRecordsRule", overdueRecordsRuleFilterExec);
+        ruleFilterExecMap.put("workStatusRule", workStatusRuleFilterExec);
     }
 }

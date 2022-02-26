@@ -26,10 +26,13 @@ public abstract class AbstractRuleFilterProcess extends RuleFilterConfig impleme
         RuleTreeNodeVO ruleTreeNodeVO = ruleTreeNodeMap.get(rootNodeId);
 
         while(ruleTreeNodeVO.getNodeType() != 1) {
+
             String ruleKey = ruleTreeNodeVO.getRuleKey();
             IRuleFilterExec iRuleFilterExec = ruleFilterExecMap.get(ruleKey);
-            String matterValue = iRuleFilterExec.matterValue(req);
+
+            Integer matterValue = iRuleFilterExec.matterValue(req);
             List<RuleTreeNodeRelationVO> ruleTreeNodeRelationVOList = ruleTreeNodeVO.getRuleTreeNodeRelationVOList();
+
             Long nextNodeId = iRuleFilterExec.filter(matterValue, ruleTreeNodeRelationVOList);
             if(nextNodeId == null || nextNodeId == -1) {
                 return null;

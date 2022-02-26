@@ -18,12 +18,12 @@ public interface IRuleFilterExec {
      * @param ruleTreeNodeRelationVOList
      * @return
      */
-    Long filter(String matterValue, List<RuleTreeNodeRelationVO> ruleTreeNodeRelationVOList);
+    Long filter(Integer matterValue, List<RuleTreeNodeRelationVO> ruleTreeNodeRelationVOList);
 
     /**
      * arg 参数转换
      * @param req
      * @return
      */
-    String matterValue(RuleFilterReq req);
+    Integer matterValue(RuleFilterReq req);
 }

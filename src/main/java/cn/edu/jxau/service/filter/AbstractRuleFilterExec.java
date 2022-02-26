@@ -1,8 +1,11 @@
 package cn.edu.jxau.service.filter;
 
 import cn.edu.jxau.model.vo.RuleTreeNodeRelationVO;
+import org.apache.dubbo.common.utils.StringUtils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @description: 抽象规则过滤器
@@ -22,8 +25,24 @@ public abstract class AbstractRuleFilterExec implements IRuleFilterExec{
     private static final int GREATER_THEN_OR_EQUALS = 3;
     private static final int LESS_THEN_OR_EQUALS = 4;
 
+    protected boolean check(Map<String, String> argMap, String keyword) {
+        if(argMap.isEmpty()) {
+            return false;
+        }
+        if(StringUtils.isBlank(argMap.get(keyword))) {
+            return false;
+        }
+        return true;
+
+    }
+
+
     @Override
-    public Long filter(String matterValue, List<RuleTreeNodeRelationVO> ruleTreeNodeRelationVOList) {
+    public Long filter(Integer matterValue, List<RuleTreeNodeRelationVO> ruleTreeNodeRelationVOList) {
+        if(Objects.equals(Integer.MAX_VALUE, matterValue)) {
+            return NOT_MATCH;
+        }
+
         for(RuleTreeNodeRelationVO ruleTreeNodeRelationVO : ruleTreeNodeRelationVOList) {
             if(decision(ruleTreeNodeRelationVO, matterValue)) {
                 return ruleTreeNodeRelationVO.getChildId();
@@ -32,21 +51,20 @@ public abstract class AbstractRuleFilterExec implements IRuleFilterExec{
         return NOT_MATCH;
     }
 
-    protected boolean decision(RuleTreeNodeRelationVO ruleTreeNodeRelationVO, String matterValue) {
+    protected boolean decision(RuleTreeNodeRelationVO ruleTreeNodeRelationVO, Integer matterValue) {
         Integer ruleType = ruleTreeNodeRelationVO.getRuleType();
         Integer ruleVal = Integer.valueOf(ruleTreeNodeRelationVO.getRuleValue());
-        Integer matterVal = Integer.valueOf(matterValue);
         switch (ruleType) {
             case EQUALS:
-                return ruleVal.equals(matterVal);
+                return ruleVal.equals(matterValue);
             case GREATER_THEN:
-                return ruleVal.compareTo(matterVal) < 0;
+                return ruleVal.compareTo(matterValue) < 0;
             case LESS_THEN:
-                return ruleVal.compareTo(matterVal) > 0;
+                return ruleVal.compareTo(matterValue) > 0;
             case GREATER_THEN_OR_EQUALS:
-                return ruleVal.compareTo(matterVal) <= 0;
+                return ruleVal.compareTo(matterValue) <= 0;
             case LESS_THEN_OR_EQUALS:
-                return ruleVal.compareTo(matterVal) >= 0;
+                return ruleVal.compareTo(matterValue) >= 0;
             default:
                 return false;
         }
