@@ -11,6 +11,6 @@ import org.springframework.stereotype.Service;
 public class DefaultersService {
 
     public boolean isDefaulters(String userId) {
-        return true;
+        return false;
     }
 }

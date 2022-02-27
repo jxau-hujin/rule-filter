@@ -13,7 +13,7 @@ public class UserInfoService {
 
     public UserInfo queryByUserId(String userId) {
         UserInfo userInfo = new UserInfo();
-        userInfo.setAge(18);
+        userInfo.setAge(20);
         userInfo.setWorkStatus(2);
 
         return userInfo;
