@@ -191,31 +191,264 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 
 
-### Demo
+### 实战
 
-需求
+#### 需求
 
 应当参与活动的用户做一次筛选。并不是所有的用户都能参与到活动
+​
 
 注：此部分规则通常适用于贷款产品，而非本次题目中的存款产品。
 引入目的是希望参赛者实现一个简单的、可灵活配置规则的风险决策引擎
-规则名称	规则描述	对象	风险控制
-逾期记录	近3年逾期2次以上（金额小于1000元，3天内还清的除外）	个人客户	拒绝
-个人客户工作状态异常	状态为“无业／失业”	个人客户	拒绝
-个人客户被列入失信人名单	个人客户被列入当前严重违法失信被执行人名单，未执行完毕的。	个人客户	拒绝
-个人客户年龄	小于18岁	个人客户	拒绝
+
+
+
+| **规则名称**             | **规则描述**                                               | **对象** | **风险控制** |
+| ------------------------ | ---------------------------------------------------------- | -------- | ------------ |
+| 逾期记录                 | 近3年逾期2次以上（金额小于1000元，3天内还清的除外）        | 个人客户 | 拒绝         |
+| 个人客户工作状态异常     | 状态为“无业／失业”                                         | 个人客户 | 拒绝         |
+| 个人客户被列入失信人名单 | 个人客户被列入当前严重违法失信被执行人名单，未执行完毕的。 | 个人客户 | 拒绝         |
+| 个人客户年龄             | 小于18岁                                                   | 个人客户 | 拒绝         |
 
 数据规则说明：
 在分析条件时，可以“数字”为维度进行展开，如“逾期记录”条件中，3年、2次、1000元、3天等字眼。
+​
 
 拦截举例说明：
 用户A年龄为16岁，在登录后秒杀活动不会对其开放。
+​
 
-功能实现说明：
-对于拦截功能，可以从以下方面思考：
-只使用一张规则表是否是最优解?
-如果将“规则名称”单独拆分成表是否对三高特性有提升？
-一定要用到数据库吗?
-用户准入结果是实时判断更好，还是提前存到数据库后再实时查询更好？
-用黑名单拦截更好，还是白名单准入更好？
-此功能是否可以从业务逻辑中分离，成为一个通用的模块？
+#### 实现
+
+该需求非常符合规则执行引擎的使用场景，分为四个规则
+「逾期记录」、「个人客户工作状态异常」、「个人客户被列入失信人名单」、「个人客户年龄」
+​
+
+因此在 `cn.edu.jxau.example`下分别创建 `filter：存放规则过滤器实现类`、`model：业务模型`、`service：业务 Service`
+​
+
+##### 逾期记录
+
+```java
+@Component
+public class OverdueRecordsRuleFilterExec extends AbstractRuleFilterExec {
+
+    private static final String KEYWORD = "userId";
+
+    private static BigDecimal limitBalance = new BigDecimal(1000);
+
+    private static Long limitCount = 2L;
+
+    private static Integer ACCEPT = 1;
+
+    private static Integer REJECT = -1;
+
+
+    @Resource
+    private OverdueRecordsService overdueRecordsService;
+
+    @Override
+    public Integer matterValue(RuleFilterReq req) {
+        Map<String, String> argMap = req.getArgMap();
+
+        if(!check(argMap, KEYWORD)) {
+            return Integer.MAX_VALUE;
+        }
+        String userId = argMap.get(KEYWORD);
+        List<OverdueRecords> overdueRecords = overdueRecordsService.queryByUserId(userId);
+
+
+        Long count = overdueRecords.stream()
+                .filter((overdueRecord -> rule(overdueRecord)))
+                .count();
+        if(count > limitCount) {
+            return REJECT;
+        }
+
+        return ACCEPT;
+    }
+
+    private boolean rule(OverdueRecords overdueRecord) {
+
+        // 近三年逾期记录
+        LocalDate lastThreeYears = LocalDate.now().minusYears(3);
+
+        LocalDate overdueDate = overdueRecord.getOverdueDate();
+
+        if(overdueDate.isBefore(lastThreeYears)) {
+            return false;
+        }
+
+        BigDecimal overdueBalance = overdueRecord.getOverdueBalance();
+
+        // 已还清 && 逾期金额小于 1000
+        if(overdueRecord.getIsPaid() && overdueBalance.compareTo(limitBalance) < 0) {
+            // 逾期 3 天之外还清
+            LocalDate lastThreeDays = overdueDate.plusDays(3);
+
+            LocalDate paidDate = overdueRecord.getPaidDate();
+
+            if(paidDate.isBefore(lastThreeDays)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+```
+
+
+##### 个人客户工作状态异常
+
+```java
+@Component
+public class WorkStatusRuleFilterExec extends AbstractRuleFilterExec {
+
+    private static final String KEYWORD = "userId";
+
+    private static Integer ACCEPT = 1;
+
+    private static Integer REJECT = -1;
+
+    @Resource
+    private UserInfoService userInfoService;
+
+    @Override
+    public Integer matterValue(RuleFilterReq req) {
+        Map<String, String> argMap = req.getArgMap();
+
+        if(!check(argMap, KEYWORD)) {
+            return Integer.MAX_VALUE;
+        }
+        String userId = argMap.get(KEYWORD);
+        UserInfo userInfo = userInfoService.queryByUserId(userId);
+
+        if(userInfo.getWorkStatus() == 0 || userInfo.getWorkStatus() == 1) {
+            return REJECT;
+        }
+        return ACCEPT;
+    }
+
+}
+```
+
+
+##### 个人客户被列入失信人名单
+
+```java
+@Component
+public class DefaultersRuleFilterExec extends AbstractRuleFilterExec {
+
+    private static final String KEYWORD = "userId";
+
+    private static Integer ACCEPT = 1;
+
+    private static Integer REJECT = -1;
+
+    @Resource
+    private DefaultersService defaultersService;
+
+    @Override
+    public Integer matterValue(RuleFilterReq req) {
+        Map<String, String> argMap = req.getArgMap();
+
+        if(!check(argMap, KEYWORD)) {
+            return Integer.MAX_VALUE;
+        }
+        String userId = argMap.get(KEYWORD);
+
+        if(defaultersService.isDefaulters(userId)) {
+            return REJECT;
+        }
+        return ACCEPT;
+    }
+}
+```
+
+
+##### 个人客户年龄
+
+```java
+@Component
+public class AgeRuleFilterExec extends AbstractRuleFilterExec {
+
+    private static final String KEYWORD = "userId";
+
+    @Resource
+    private UserInfoService userInfoService;
+
+    @Override
+    public Integer matterValue(RuleFilterReq req) {
+        Map<String, String> argMap = req.getArgMap();
+
+        if(!check(argMap, KEYWORD)) {
+            return Integer.MAX_VALUE;
+        }
+
+        UserInfo userInfo = userInfoService.queryByUserId(argMap.get(KEYWORD));
+
+        return Integer.valueOf(userInfo.getAge());
+    }
+}
+```
+
+##### 运行结果测试
+
+风控通过
+
+逾期记录不通过
+
+个人客户工作状态异常
+
+个人客户被列入失信人名单
+
+个人客户年龄不符合
+
+
+#### 思考
+
+##### 只使用一张规则表是否是最优解?
+
+只使用一张规则表不符合数据库范式要求，会存在数据冗余以及数据更新导致不一致的情况，因此规则执行引擎中拆分为「规则树」「规则节点」「规则节点关系」
+
+
+##### 如果将“规则名称”单独拆分成表是否对三高特性有提升？
+
+不会，因为规则执行引擎对于表的依赖大多是`读`而非`写`，因此即使不拆分也不会导致行记录锁定，但是为了范式的要求还是进行了拆分
+
+
+## 一定要用到数据库吗?
+
+是，因为规则是提前预设好，所以从业务场景上来说是需要持久化存储的，而且业务特定是`读多写少`可以提前将其加载到缓存中，避免从数据库中读数据
+
+
+##### 用户准入结果是实时判断更好，还是提前存到数据库后再实时查询更好？
+
+根据业务需求来确定，如果对于实时判断的 RT 没有要求，那么实时判断也可以（实时判断会调用外部 API 来获取数据进行判断），如果有要求可以定时任务提前计算好并存储数据库中，在查询时可以从缓存查询加快查询速度，前提是客户数据变更不频繁，本例中用户的数据就属于变更不频繁的场景
+
+
+##### 用黑名单拦截更好，还是白名单准入更好？
+
+黑名单拦截更好，因为考虑到大多数人的信用记录还是良好的，黑名单相对更少，而白名单更多
+
+
+##### 此功能是否可以从业务逻辑中分离，成为一个通用的模块？
+
+规则执行引擎正是为了避免业务硬编码而分离出来的通用模块
+​
+
+##### 规则执行引擎的粒度
+
+粒度一：对于复杂的规则更倾向于使用者继承`AbstractRuleFilterExec`重写 `matterValue`方法
+​
+
+粒度二：对于简单的规则更倾向于使用者通过设定节点的比较类型以及比较值，而`matterValue`则直接返回量化后的数据
+​
+
+对于本需求来说
+​
+
+`逾期记录`和`个人客户被列入失信人名单`可以使用`粒度一`
+`个人客户工作状态异常`和`个人客户年龄`可以使用`粒度二`
+​
