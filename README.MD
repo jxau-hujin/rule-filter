@@ -396,14 +396,22 @@ public class AgeRuleFilterExec extends AbstractRuleFilterExec {
 ##### 运行结果测试
 
 风控通过
+<img width="619" alt="image" src="https://user-images.githubusercontent.com/43172976/155868211-a8e57b5b-4cf6-4a32-b1ac-980e310b8f99.png">
 
 逾期记录不通过
+<img width="617" alt="image" src="https://user-images.githubusercontent.com/43172976/155868214-e24235b7-0b9e-49c2-b6b8-55dcddb85592.png">
+
 
 个人客户工作状态异常
+<img width="619" alt="image" src="https://user-images.githubusercontent.com/43172976/155868221-287accd0-a0fe-4a5b-9b13-cee0a6db104e.png">
+
 
 个人客户被列入失信人名单
+<img width="619" alt="image" src="https://user-images.githubusercontent.com/43172976/155868224-b3f829d2-4e39-40f1-ab8a-590b157ed70a.png">
+
 
 个人客户年龄不符合
+<img width="620" alt="image" src="https://user-images.githubusercontent.com/43172976/155868226-741a4fe9-a2bc-44d0-b912-5b00b2c3ee40.png">
 
 
 #### 思考
