@@ -15,17 +15,24 @@
 
 ```java
 // 传入参数 User，针对年龄、性别进行过滤出【男，25岁以下】人群
-
-// IF-ELSE 版本
-if("男".equals(user.getSex())) {
-  if(25 <= user.getAge()) {
-		return true;
-  }
+public class Demo {
+   // IF-ELSE 版本
+   public boolean ruleFilter(User user) {
+      if("男".equals(user.getSex())) {
+         if(25 <= user.getAge()) {
+            return true;
+         }
+      }
+      return false;
+   }
+   
+   // 使用规则执行引擎
+   public static void main(String[] args) {
+      ruleFilter(user, treeId);
+   }
 }
-
-// 使用规则执行引擎
-ruleFilter(user, treeId);
 ```
+
 
 1. 使用规则执行引擎屏蔽过滤细节，调用方无需关心实现细节，仅仅需要选定规则树即可，高内聚
 
